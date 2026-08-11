@@ -28,5 +28,10 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JanicsJophles/termwright.git",
+    "directory": "packages/agent"
+  }
 }

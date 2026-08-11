@@ -6,7 +6,7 @@ Termwright is pre-alpha. Security fixes are applied to the latest commit on `mai
 
 ## Reporting a vulnerability
 
-Please use GitHub's private vulnerability reporting for `rackmind-ai/termwright`. Do not open a public issue for secret leakage, process escape, command injection, unsafe child-process handling, or trace-redaction failures.
+Please use GitHub's private vulnerability reporting for `JanicsJophles/termwright`. Do not open a public issue for secret leakage, process escape, command injection, unsafe child-process handling, or trace-redaction failures.
 
 ## Threat model
 

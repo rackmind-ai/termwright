@@ -4,6 +4,14 @@
   "private": true,
   "description": "Agent-ready end-to-end testing for terminal applications",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JanicsJophles/termwright.git"
+  },
+  "homepage": "https://github.com/JanicsJophles/termwright#readme",
+  "bugs": {
+    "url": "https://github.com/JanicsJophles/termwright/issues"
+  },
   "engines": {
     "node": ">=20.18.1"
   },

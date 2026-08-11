@@ -1,6 +1,6 @@
 # Termwright
 
-[![CI](https://github.com/rackmind-ai/termwright/actions/workflows/ci.yml/badge.svg)](https://github.com/rackmind-ai/termwright/actions/workflows/ci.yml)
+[![CI](https://github.com/JanicsJophles/termwright/actions/workflows/ci.yml/badge.svg)](https://github.com/JanicsJophles/termwright/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 **Playwright-style, agent-ready end-to-end testing for terminal applications.**
