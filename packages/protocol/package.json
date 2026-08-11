@@ -1,0 +1,25 @@
+{
+  "name": "@termwright/protocol",
+  "version": "0.1.0",
+  "description": "Versioned protocol contracts for terminal automation and tracing.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=20.18.1"
+  },
+  "license": "Apache-2.0"
+}

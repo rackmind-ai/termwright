@@ -1,0 +1,35 @@
+{
+  "name": "termwright",
+  "version": "0.1.0",
+  "description": "Agent-ready end-to-end testing for terminal applications.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "termwright": "./bin/termwright.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@termwright/core": "0.1.0",
+    "@termwright/protocol": "0.1.0"
+  },
+  "engines": {
+    "node": ">=20.18.1"
+  },
+  "license": "Apache-2.0"
+}

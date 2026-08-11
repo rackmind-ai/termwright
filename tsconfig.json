@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/protocol" },
+    { "path": "./packages/core" },
+    { "path": "./packages/test" },
+    { "path": "./packages/agent" },
+    { "path": "./packages/cli" },
+    { "path": "./examples/demo-cli" }
+  ]
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.log
+*.tgz
+*.tsbuildinfo
+*.termwright-trace.zip
+.termwright/
+.env
+.env.*
+!.env.example

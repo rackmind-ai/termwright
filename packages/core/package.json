@@ -1,0 +1,38 @@
+{
+  "name": "@termwright/core",
+  "version": "0.1.0",
+  "description": "Headless PTY terminal automation and testing primitives.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "postinstall": "node scripts/fix-node-pty-helper.mjs"
+  },
+  "dependencies": {
+    "@termwright/protocol": "0.1.0",
+    "@xterm/addon-serialize": "^0.14.0",
+    "@xterm/headless": "^6.0.0",
+    "node-pty": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "vitest": "^4.0.16"
+  },
+  "engines": {
+    "node": ">=20.18.1"
+  },
+  "license": "Apache-2.0"
+}
