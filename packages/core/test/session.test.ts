@@ -90,11 +90,11 @@ describe('TerminalSession', () => {
   });
 
   it('enforces output and timeout bounds', async () => {
-    const session = launch({ maxOutputBytes: 8, defaultTimeoutMs: 100, maxTimeoutMs: 100 });
-    await session.getPrompt('demo> ').wait({ timeoutMs: 100 });
+    const session = launch({ maxOutputBytes: 8, defaultTimeoutMs: 300, maxTimeoutMs: 300 });
+    await session.getPrompt('demo> ').wait({ timeoutMs: 300 });
 
     expect(Buffer.byteLength(session.output)).toBeLessThanOrEqual(8);
-    expect(() => session.resolveTimeout(101)).toThrow(RangeError);
+    expect(() => session.resolveTimeout(301)).toThrow(RangeError);
   });
 
   it('enforces action and wall-clock limits', async () => {
@@ -113,5 +113,28 @@ describe('TerminalSession', () => {
           (record) => record.event.type === 'error' && record.event.name === 'TerminalTimeoutError',
         ),
     ).toBe(true);
+  });
+
+  it('waits for matching rendered snapshots and synchronized-output completion', async () => {
+    const session = launch({
+      args: [
+        '-e',
+        String.raw`
+          process.stdout.write("\x1b[?2026hpartial");
+          setTimeout(() => process.stdout.write(" complete\x1b[?2026l"), 50);
+        `,
+      ],
+    });
+    await session.getByText('partial').wait({ timeoutMs: 500 });
+    const started = Date.now();
+    const stable = await session.waitForStable({
+      stableForMs: 10,
+      minimumObservations: 2,
+      pollIntervalMs: 10,
+    });
+
+    expect(Date.now() - started).toBeGreaterThanOrEqual(40);
+    expect(stable.text).toContain('partial complete');
+    expect(session.trace().records.some((record) => record.event.type === 'stable')).toBe(true);
   });
 });

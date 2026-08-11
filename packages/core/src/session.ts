@@ -21,6 +21,8 @@ const DEFAULT_TIMEOUT_MS = 5_000;
 const MAX_TIMEOUT_MS = 60_000;
 const DEFAULT_MAX_OUTPUT_BYTES = 1024 * 1024;
 const DEFAULT_PROMPT = /(?:^|\s)[>$#❯]\s*$/;
+const ESCAPE = String.fromCharCode(0x1b);
+const SYNCHRONIZED_OUTPUT_SEQUENCE = new RegExp(`${ESCAPE}\\[\\?2026([hl])`, 'g');
 const { Terminal } = createRequire(import.meta.url)('@xterm/headless') as {
   Terminal: typeof XtermTerminal;
 };
@@ -55,7 +57,13 @@ export interface TypeOptions {
 }
 
 export interface WaitForStableOptions {
+  /**
+   * Minimum wall-clock duration for which the rendered screen must remain
+   * unchanged. This is a lower bound, not the sole stability signal.
+   */
   stableForMs?: number;
+  /** Number of consecutive rendered snapshots that must agree. */
+  minimumObservations?: number;
   timeoutMs?: number;
   pollIntervalMs?: number;
 }
@@ -103,6 +111,9 @@ export class TerminalSession {
   #maxTimeoutMs: number;
   #screenSequence = 0;
   #screenRevision = 0;
+  #renderRevision = 0;
+  #synchronizedOutputOpen = false;
+  #synchronizationTail = '';
   #pendingWrites: Promise<void> = Promise.resolve();
   #exitResult?: ExitResult;
   #resolveExit!: (result: ExitResult) => void;
@@ -302,23 +313,49 @@ export class TerminalSession {
     this.#consumeAction();
     const timeoutMs = this.resolveTimeout(options.timeoutMs);
     const stableForMs = positiveInteger(options.stableForMs ?? 100, 'stableForMs');
+    const minimumObservations = positiveInteger(
+      options.minimumObservations ?? 2,
+      'minimumObservations',
+    );
     const pollIntervalMs = positiveInteger(options.pollIntervalMs ?? 20, 'pollIntervalMs');
     if (stableForMs > timeoutMs) throw new RangeError('stableForMs must not exceed timeoutMs');
     const started = Date.now();
-    let lastRevision = this.#screenRevision;
+    let lastRenderRevision = this.#renderRevision;
     let unchangedSince = Date.now();
+    let previousFingerprint: string | undefined;
+    let matchingObservations = 0;
 
     for (;;) {
       await this.#pendingWrites;
-      const currentRevision = this.#screenRevision;
-      if (currentRevision !== lastRevision) {
-        lastRevision = currentRevision;
+      const currentRenderRevision = this.#renderRevision;
+      const snapshot = this.readScreen();
+      const fingerprint = JSON.stringify({
+        size: snapshot.size,
+        cursor: snapshot.cursor,
+        text: snapshot.text,
+        ansi: snapshot.ansi,
+      });
+
+      if (
+        this.#synchronizedOutputOpen ||
+        currentRenderRevision !== lastRenderRevision ||
+        fingerprint !== previousFingerprint
+      ) {
+        lastRenderRevision = currentRenderRevision;
+        previousFingerprint = fingerprint;
         unchangedSince = Date.now();
+        matchingObservations = 1;
+      } else {
+        matchingObservations += 1;
       }
-      if (Date.now() - unchangedSince >= stableForMs) {
+
+      if (
+        !this.#synchronizedOutputOpen &&
+        matchingObservations >= minimumObservations &&
+        Date.now() - unchangedSince >= stableForMs
+      ) {
         const elapsedMs = Date.now() - started;
         this.#trace.emit({ type: 'stable', timestamp: now(), stableForMs, elapsedMs });
-        const snapshot = this.readScreen();
         this.#trace.emit({ type: 'snapshot', timestamp: snapshot.timestamp, snapshot });
         return snapshot;
       }
@@ -387,8 +424,18 @@ export class TerminalSession {
   }
 
   #handleOutput(data: string): void {
+    this.#observeSynchronizedOutput(data);
     const safeData = this.#redactor.push(data);
     if (safeData) this.#commitOutput(safeData);
+  }
+
+  #observeSynchronizedOutput(data: string): void {
+    const observed = this.#synchronizationTail + data;
+    for (const match of observed.matchAll(SYNCHRONIZED_OUTPUT_SEQUENCE)) {
+      this.#synchronizedOutputOpen = match[1] === 'h';
+    }
+    // Retain only enough data to recognize a control sequence split across PTY chunks.
+    this.#synchronizationTail = observed.slice(-8);
   }
 
   #commitOutput(data: string): void {
@@ -403,7 +450,10 @@ export class TerminalSession {
     this.#pendingWrites = this.#pendingWrites.then(
       () =>
         new Promise<void>((resolve) => {
-          this.#terminal.write(data, resolve);
+          this.#terminal.write(data, () => {
+            this.#renderRevision += 1;
+            resolve();
+          });
         }),
     );
   }
