@@ -1,44 +1,17 @@
 # Roadmap
 
-## v0.1 — Functional terminal core
+Termwright is pre-alpha and primarily dogfooded against RackMind’s installed CLI.
 
-- Real PTY launch with exact executable and argv.
-- Headless xterm rendering and visible-screen snapshots.
-- Lazy text, line, and prompt locators.
-- Keyboard input, named keys, resize, and stable-screen waits.
-- Bounded session time, actions, output, traces, and teardown.
-- Secret-aware trace redaction.
-- Versioned JSON action/event/trace contracts.
-- Vitest fixture and constrained agent controller.
-- `termwright inspect` and JSON trace replay.
+## Next
 
-## v0.2 — Deterministic scenario runner
+- Run the packed RackMind binary through onboarding, login, SSH readiness, chat, resize, and interruption scenarios.
+- Make every failure leave a small, replayable trace bundle.
+- Build the workflow I actually need: turn a reviewed exploratory trace into a deterministic RackMind regression test.
+- Add Linux CI before treating the driver as portable.
 
-- Scenario discovery and reporters.
-- Retrying `expect` matchers for screen, cursor, process, and exit state.
-- Isolated temporary home/config/work directories.
-- Deterministic fixture HTTP/TCP helpers.
-- JUnit and asciicast artifacts.
-- Linux and macOS CI matrix, followed by Windows ConPTY CI.
+## Deliberately deferred
 
-## v0.3 — Model and property exploration
-
-- `fast-check` command-model integration with seed capture and shrinking.
-- Stable YAML reproduction format.
-- Trace minimization.
-- Unicode, resize, signal, and input-sequence generators.
-
-## v0.4 — Agent exploration
-
-- Provider-neutral agent loop over the constrained action controller.
-- Action, wall-clock, character, and token budgets.
-- Deterministic fixture oracles and forbidden-side-effect assertions.
-- Conversion of discoveries into replayable and minimized scenarios.
-
-## Deferred until justified
-
-- Long-running daemon or remote protocol.
-- Trace web viewer.
-- Code generation/recording UI.
-- MCP facade.
-- Additional language clients.
+- A browser-like trace viewer.
+- A daemon, MCP server, or multi-language SDK.
+- General-purpose code generation.
+- Windows / ConPTY support until RackMind has a concrete Windows CLI audience.
