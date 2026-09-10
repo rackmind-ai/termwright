@@ -23,7 +23,7 @@
     "@termwright/protocol": "0.1.0"
   },
   "devDependencies": {
-    "vitest": "^4.0.16"
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=20.18.1"
